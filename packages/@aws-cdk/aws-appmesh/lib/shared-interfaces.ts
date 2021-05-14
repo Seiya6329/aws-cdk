@@ -1,11 +1,13 @@
 import * as cdk from '@aws-cdk/core';
 import { CfnVirtualGateway, CfnVirtualNode } from './appmesh.generated';
-import { ClientPolicy } from './client-policy';
+import { TlsCertificate } from './tls-certificate';
+import { TlsValidationContext } from './tls-validation-context';
 import { IVirtualService } from './virtual-service';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
 import { Construct } from '@aws-cdk/core';
+
 
 /**
  * Represents timeouts for HTTP protocols.
@@ -168,6 +170,38 @@ class FileAccessLog extends AccessLog {
 }
 
 /**
+ * Represents the properties needed to define client policy
+ */
+export interface TlsClientPolicy {
+  /**
+   * Represents the object for client's TLS certificate
+   *
+   * @default: none
+   */
+  readonly tlsCertificate?: TlsCertificate;
+
+  /**
+   * Whether the policy is enforced.
+   *
+   * @default: true
+   */
+  readonly enforce?: boolean;
+
+  /**
+   * TLS is enforced on the ports specified here.
+   * If no ports are specified, TLS will be enforced on all the ports.
+   *
+   * @default: none
+   */
+  readonly ports?: number[];
+
+  /**
+   * Represents the object for TLS validation context
+   */
+  readonly tlsValidationContext: TlsValidationContext;
+}
+
+/**
  * Represents the properties needed to define backend defaults
  */
 export interface BackendDefaults {
@@ -176,7 +210,7 @@ export interface BackendDefaults {
    *
    * @default none
    */
-  readonly clientPolicy?: ClientPolicy;
+  readonly clientPolicy?: TlsClientPolicy;
 }
 
 /**
@@ -189,7 +223,7 @@ export interface VirtualServiceBackendOptions {
    *
    * @default none
    */
-  readonly clientPolicy?: ClientPolicy;
+  readonly clientPolicy?: TlsClientPolicy;
 }
 
 /**
@@ -226,7 +260,7 @@ export abstract class Backend {
 class VirtualServiceBackend extends Backend {
 
   constructor (private readonly virtualService: IVirtualService,
-    private readonly clientPolicy: ClientPolicy | undefined) {
+    private readonly clientPolicy: TlsClientPolicy | undefined) {
     super();
   }
 
@@ -238,7 +272,18 @@ class VirtualServiceBackend extends Backend {
       virtualServiceBackend: {
         virtualService: {
           virtualServiceName: this.virtualService.virtualServiceName,
-          clientPolicy: this.clientPolicy?.bind(_scope).clientPolicy,
+          clientPolicy: this.clientPolicy !== undefined ?
+            {
+              tls: {
+                certificate: this.clientPolicy.tlsCertificate?.bind(_scope).tlsCertificate,
+                ports: this.clientPolicy.ports,
+                enforce: this.clientPolicy.enforce,
+                validation: {
+                  trust: this.clientPolicy.tlsValidationContext.trust.bind(_scope).virtualNodeClientTlsValidationContextTrust,
+                },
+              },
+            }
+            : undefined,
         },
       },
     };

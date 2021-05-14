@@ -176,6 +176,7 @@ export class VirtualNode extends VirtualNodeBase {
     props.listeners?.forEach(listener => this.addListener(listener));
     const accessLogging = props.accessLog?.bind(this);
     const serviceDiscovery = props.serviceDiscovery?.bind(this);
+    const backendDefaults = props.backendDefaults;
 
     const node = new CfnVirtualNode(this, 'Resource', {
       virtualNodeName: this.physicalName,
@@ -183,9 +184,20 @@ export class VirtualNode extends VirtualNodeBase {
       spec: {
         backends: cdk.Lazy.any({ produce: () => this.backends }, { omitEmptyArray: true }),
         listeners: cdk.Lazy.any({ produce: () => this.listeners.map(listener => listener.listener) }, { omitEmptyArray: true }),
-        backendDefaults: props.backendDefaults !== undefined
-          ? {
-            clientPolicy: props.backendDefaults?.clientPolicy?.bind(this).clientPolicy,
+        backendDefaults: backendDefaults !== undefined ?
+          {
+            clientPolicy: backendDefaults.clientPolicy !== undefined ?
+              {
+                tls: {
+                  certificate: backendDefaults.clientPolicy.tlsCertificate?.bind(this).tlsCertificate,
+                  ports: backendDefaults.clientPolicy.ports,
+                  enforce: backendDefaults.clientPolicy.enforce,
+                  validation: {
+                    trust: backendDefaults.clientPolicy.tlsValidationContext.trust.bind(this).virtualNodeClientTlsValidationContextTrust,
+                  },
+                },
+              }
+              : undefined,
           }
           : undefined,
         serviceDiscovery: {

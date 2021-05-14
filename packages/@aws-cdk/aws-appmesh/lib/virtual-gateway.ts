@@ -173,15 +173,27 @@ export class VirtualGateway extends VirtualGatewayBase {
     }
 
     const accessLogging = props.accessLog?.bind(this);
+    const backendDefaults = props.backendDefaults;
 
     const node = new CfnVirtualGateway(this, 'Resource', {
       virtualGatewayName: this.physicalName,
       meshName: this.mesh.meshName,
       spec: {
         listeners: this.listeners.map(listener => listener.listener),
-        backendDefaults: props.backendDefaults !== undefined
-          ? {
-            clientPolicy: props.backendDefaults?.clientPolicy?.bind(this).clientPolicy,
+        backendDefaults: backendDefaults !== undefined ?
+          {
+            clientPolicy: backendDefaults.clientPolicy !== undefined ?
+              {
+                tls: {
+                  certificate: backendDefaults.clientPolicy.tlsCertificate?.bind(this).tlsCertificate,
+                  ports: backendDefaults.clientPolicy.ports,
+                  enforce: backendDefaults.clientPolicy.enforce,
+                  validation: {
+                    trust: backendDefaults.clientPolicy.tlsValidationContext.trust.bind(this).virtualGatewayClientTlsValidationContextTrust,
+                  },
+                },
+              }
+              : undefined,
           }
           : undefined,
         logging: accessLogging !== undefined ? {
