@@ -15,7 +15,7 @@ export interface TlsValidation {
    *
    * @default - the Envoy proxy for that node doesn't verify the SAN on a peer client certificate.
    */
-  readonly subjectAlternativeNames?: SubjectiveAlternativeNamesMatch;
+  readonly subjectAlternativeNames?: SubjectiveAlternativeNames;
 
   /**
    * Reference to where to retrieve the trust chain.
@@ -179,13 +179,13 @@ export interface SubjectiveAlternativeNamesMatcherConfig {
 /**
  * Used to generate Subject Alternative Names Matchers
  */
-export abstract class SubjectiveAlternativeNamesMatch {
+export abstract class SubjectiveAlternativeNames {
   /**
    * The values of the SAN must match the specified values exactly.
    *
    * @param subjectAlternativeNames The exact values to test against.
    */
-  public static valuesAre(subjectAlternativeNames: string[]): SubjectiveAlternativeNamesMatch {
+  public static exactMatch(subjectAlternativeNames: string[]): SubjectiveAlternativeNames {
     return new SubjectAlternativeNamesImpl({ exact: subjectAlternativeNames });
   }
 
@@ -195,7 +195,7 @@ export abstract class SubjectiveAlternativeNamesMatch {
   public abstract bind(scope: Construct): SubjectiveAlternativeNamesMatcherConfig;
 }
 
-class SubjectAlternativeNamesImpl extends SubjectiveAlternativeNamesMatch {
+class SubjectAlternativeNamesImpl extends SubjectiveAlternativeNames {
   constructor(
     private readonly matchProperty: CfnVirtualNode.SubjectAlternativeNameMatchersProperty,
   ) {

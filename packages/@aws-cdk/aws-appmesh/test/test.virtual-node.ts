@@ -334,7 +334,7 @@ export = {
             tlsClientPolicy: {
               ports: [8080, 8081],
               validation: {
-                subjectAlternativeNames: appmesh.SubjectiveAlternativeNamesMatch.valuesAre(['mesh-endpoint.apps.local']),
+                subjectAlternativeNames: appmesh.SubjectiveAlternativeNames.exactMatch(['mesh-endpoint.apps.local']),
                 trust: appmesh.TlsValidationTrust.acm({
                   certificateAuthorities: [acmpca.CertificateAuthority.fromCertificateAuthorityArn(stack, 'certificate', certificateAuthorityArn)],
                 }),

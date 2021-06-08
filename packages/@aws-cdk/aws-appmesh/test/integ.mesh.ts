@@ -97,7 +97,7 @@ const node2 = mesh.addVirtualNode('node2', {
             privateKeyPath: 'path/to/privateKey',
           }),
           validation: {
-            subjectAlternativeNames: appmesh.SubjectiveAlternativeNamesMatch.valuesAre(['mymesh.local']),
+            subjectAlternativeNames: appmesh.SubjectiveAlternativeNames.exactMatch(['mymesh.local']),
             trust: appmesh.TlsValidationTrust.file({
               certificateChain: 'path/to/certChain',
             }),
@@ -143,7 +143,7 @@ const node4 = mesh.addVirtualNode('node4', {
         trust: appmesh.TlsValidationTrust.sds({
           secretName: 'spiffe://domain.local',
         }),
-        subjectAlternativeNames: appmesh.SubjectiveAlternativeNamesMatch.valuesAre(['client.domain.local']),
+        subjectAlternativeNames: appmesh.SubjectiveAlternativeNames.exactMatch(['client.domain.local']),
       },
     },
     healthCheck: appmesh.HealthCheck.http({
