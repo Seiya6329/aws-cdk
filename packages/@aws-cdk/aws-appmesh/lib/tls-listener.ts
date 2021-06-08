@@ -37,9 +37,9 @@ export interface TlsListener {
 
   /**
    * Represents a listener's TLS validation context.
-   * Define this to enable mutual TLS authentication.
+   * The client certificate will only be validated if the client provides it, enabling mutual TLS.
    *
-   * @default - no TLS validation
+   * @default - client TLS certificate is not required
    */
   readonly validation?: TlsValidation
 }

@@ -6,10 +6,10 @@ import { TlsValidation } from './tls-validation';
  */
 export interface TlsClientPolicy {
   /**
-   * Represents a client's TLS certificate.
-   * Define this to enable mutual TLS authentication.
+   * Represents a client TLS certificate.
+   * The certificate will be sent only if the server requests it, enabling mutual TLS.
    *
-   * @default - no TLS certificate
+   * @default - client TLS certificate is not provided
    */
   readonly certificate?: TlsCertificate;
 

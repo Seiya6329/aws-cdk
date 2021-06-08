@@ -30,26 +30,7 @@ export interface TlsValidationTrustConfig {
   /**
    * VirtualNode CFN configuration for client policy's TLS Validation Trust
    */
-  readonly virtualNodeClientTlsValidationTrust: CfnVirtualNode.TlsValidationContextTrustProperty;
-
-  /**
-   * VirtualNode CFN configuration for listener's TLS Validation Trust
-   *
-   * @default - no TLS Validation Trust
-   */
-  readonly virtualNodeListenerTlsValidationTrust?: CfnVirtualNode.ListenerTlsValidationContextTrustProperty
-
-  /**
-   * VirtualGateway CFN configuration for client policy's TLS Validation Trust
-   */
-  readonly virtualGatewayClientTlsValidationTrust: CfnVirtualGateway.VirtualGatewayTlsValidationContextTrustProperty;
-
-  /**
-   * VirtualGateway CFN configuration for listener's TLS Validation Trust
-   *
-   * @default - no TLS Validation Trust
-   */
-  readonly virtualGatewayListenerTlsValidationTrust?: CfnVirtualGateway.VirtualGatewayListenerTlsValidationContextTrustProperty;
+  readonly tlsValidationTrust: CfnVirtualNode.TlsValidationContextTrustProperty;
 }
 
 /**
@@ -129,13 +110,7 @@ class TlsValidationAcmTrust extends TlsValidationTrust {
       throw new Error('you must provide at least one Certificate Authority when creating an ACM Trust ClientPolicy');
     } else {
       return {
-        virtualNodeClientTlsValidationTrust: {
-          acm: {
-            certificateAuthorityArns: this.certificateAuthorities.map(certificateArn =>
-              certificateArn.certificateAuthorityArn),
-          },
-        },
-        virtualGatewayClientTlsValidationTrust: {
+        tlsValidationTrust: {
           acm: {
             certificateAuthorityArns: this.certificateAuthorities.map(certificateArn =>
               certificateArn.certificateAuthorityArn),
@@ -159,22 +134,7 @@ class TlsValidationFileTrust extends TlsValidationTrust {
 
   public bind(_scope: Construct): TlsValidationTrustConfig {
     return {
-      virtualNodeClientTlsValidationTrust: {
-        file: {
-          certificateChain: this.certificateChain,
-        },
-      },
-      virtualNodeListenerTlsValidationTrust: {
-        file: {
-          certificateChain: this.certificateChain,
-        },
-      },
-      virtualGatewayClientTlsValidationTrust: {
-        file: {
-          certificateChain: this.certificateChain,
-        },
-      },
-      virtualGatewayListenerTlsValidationTrust: {
+      tlsValidationTrust: {
         file: {
           certificateChain: this.certificateChain,
         },
@@ -196,22 +156,7 @@ class TlsValidationSdsTrust extends TlsValidationTrust {
 
   public bind(_scope: Construct): TlsValidationTrustConfig {
     return {
-      virtualNodeClientTlsValidationTrust: {
-        sds: {
-          secretName: this.secretName,
-        },
-      },
-      virtualNodeListenerTlsValidationTrust: {
-        sds: {
-          secretName: this.secretName,
-        },
-      },
-      virtualGatewayClientTlsValidationTrust: {
-        sds: {
-          secretName: this.secretName,
-        },
-      },
-      virtualGatewayListenerTlsValidationTrust: {
+      tlsValidationTrust: {
         sds: {
           secretName: this.secretName,
         },
@@ -228,12 +173,7 @@ export interface SubjectiveAlternativeNamesMatcherConfig {
   /**
    * VirtualNode CFN configuration for subject alternative names secured by the certificate.
    */
-  readonly virtualNodeSans: CfnVirtualGateway.SubjectAlternativeNameMatchersProperty;
-
-  /**
-   * VirtualGateway CFN configuration for subject alternative names secured by the certificate.
-   */
-  readonly virtualGatewaySans: CfnVirtualGateway.SubjectAlternativeNameMatchersProperty;
+  readonly subjectAlternativeNamesMatch: CfnVirtualGateway.SubjectAlternativeNameMatchersProperty;
 }
 
 /**
@@ -264,8 +204,7 @@ class SubjectAlternativeNamesImpl extends SubjectiveAlternativeNamesMatch {
 
   public bind(_scope: Construct): SubjectiveAlternativeNamesMatcherConfig {
     return {
-      virtualGatewaySans: this.matchProperty,
-      virtualNodeSans: this.matchProperty,
+      subjectAlternativeNamesMatch: this.matchProperty,
     };
   }
 }

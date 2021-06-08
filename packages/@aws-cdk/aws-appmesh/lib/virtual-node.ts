@@ -200,9 +200,7 @@ export class VirtualNode extends VirtualNodeBase {
         backendDefaults: props.backendDefaults !== undefined
           ? {
             clientPolicy: {
-              tls: renderTlsClientPolicy(this, props.backendDefaults?.tlsClientPolicy,
-                (config) => config.virtualNodeClientTlsValidationTrust,
-                (config) => config.virtualNodeSans),
+              tls: renderTlsClientPolicy(this, props.backendDefaults?.tlsClientPolicy),
             },
           }
           : undefined,

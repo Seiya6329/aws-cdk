@@ -153,8 +153,8 @@ class VirtualGatewayListenerImpl extends VirtualGatewayListener {
  * Renders the TLS config for a listener
  */
 function renderTls(scope: Construct, tls: TlsListener | undefined): CfnVirtualGateway.VirtualGatewayListenerTlsProperty | undefined {
-  const trustProperty = tls?.validation?.trust.bind(scope).virtualGatewayListenerTlsValidationTrust;
-  if (tls?.validation?.trust && !trustProperty) {
+  const trustProperty = tls?.validation?.trust.bind(scope).tlsValidationTrust;
+  if (trustProperty?.acm) {
     throw new Error('ACM certificate source is currently not supported.');
   }
 
@@ -166,7 +166,7 @@ function renderTls(scope: Construct, tls: TlsListener | undefined): CfnVirtualGa
         ? {
           subjectAlternativeNames: tls.validation?.subjectAlternativeNames
             ? {
-              match: tls.validation.subjectAlternativeNames.bind(scope).virtualGatewaySans,
+              match: tls.validation.subjectAlternativeNames.bind(scope).subjectAlternativeNamesMatch,
             }
             : undefined,
           trust: trustProperty,

@@ -197,8 +197,8 @@ class VirtualNodeListenerImpl extends VirtualNodeListener {
    * Renders the TLS config for a listener
    */
   private renderTls(scope: Construct, tls: TlsListener | undefined): CfnVirtualNode.ListenerTlsProperty | undefined {
-    const trustProperty = tls?.validation?.trust.bind(scope).virtualNodeListenerTlsValidationTrust;
-    if (tls?.validation?.trust && !trustProperty) {
+    const tlsValidation = tls?.validation;
+    if (tlsValidation?.trust.bind(scope).tlsValidationTrust.acm) {
       throw new Error('ACM certificate source is currently not supported.');
     }
 
@@ -206,14 +206,14 @@ class VirtualNodeListenerImpl extends VirtualNodeListener {
       ? {
         certificate: tls.certificate.bind(scope).tlsCertificate,
         mode: tls.mode,
-        validation: trustProperty
+        validation: tlsValidation
           ? {
-            subjectAlternativeNames: tls.validation?.subjectAlternativeNames
+            subjectAlternativeNames: tlsValidation.subjectAlternativeNames
               ? {
-                match: tls.validation.subjectAlternativeNames.bind(scope).virtualNodeSans,
+                match: tlsValidation.subjectAlternativeNames.bind(scope).subjectAlternativeNamesMatch,
               }
               : undefined,
-            trust: trustProperty,
+            trust: tlsValidation.trust.bind(scope).tlsValidationTrust,
           }
           : undefined,
       }
