@@ -6,9 +6,17 @@ import { CfnVirtualGateway, CfnVirtualNode } from './appmesh.generated';
 import { Construct } from '@aws-cdk/core';
 
 /**
- * Represents the properties needed to define TLS validation context
+ * Represents the properties needed to define TLS Validation context
  */
 export interface TlsValidation {
+  /**
+   * Represents the subject alternative names (SANs) secured by the certificate.
+   * SANs must be in the FQDN or URI format.
+   *
+   * @default - the Envoy proxy for that node doesn't verify the SAN on a peer client certificate.
+   */
+  readonly subjectAlternativeNames?: SubjectiveAlternativeNamesMatch;
+
   /**
    * Reference to where to retrieve the trust chain.
    */
@@ -16,18 +24,32 @@ export interface TlsValidation {
 }
 
 /**
- * All Properties for TLS Validations for both Client Policy and Listener.
+ * All Properties for TLS Validation Trusts for both Client Policy and Listener.
  */
 export interface TlsValidationTrustConfig {
   /**
-   * VirtualNode CFN configuration for client policy's TLS Validation
+   * VirtualNode CFN configuration for client policy's TLS Validation Trust
    */
   readonly virtualNodeClientTlsValidationTrust: CfnVirtualNode.TlsValidationContextTrustProperty;
 
   /**
-   * VirtualGateway CFN configuration for client policy's TLS Validation
+   * VirtualNode CFN configuration for listener's TLS Validation Trust
+   *
+   * @default - no TLS Validation Trust
+   */
+  readonly virtualNodeListenerTlsValidationTrust?: CfnVirtualNode.ListenerTlsValidationContextTrustProperty
+
+  /**
+   * VirtualGateway CFN configuration for client policy's TLS Validation Trust
    */
   readonly virtualGatewayClientTlsValidationTrust: CfnVirtualGateway.VirtualGatewayTlsValidationContextTrustProperty;
+
+  /**
+   * VirtualGateway CFN configuration for listener's TLS Validation Trust
+   *
+   * @default - no TLS Validation Trust
+   */
+  readonly virtualGatewayListenerTlsValidationTrust?: CfnVirtualGateway.VirtualGatewayListenerTlsValidationContextTrustProperty;
 }
 
 /**
@@ -51,7 +73,17 @@ export interface TlsValidationFileTrustOptions {
 }
 
 /**
- * Defines the TLS validation context trust.
+ * SDS Trust Properties
+ */
+export interface TlsValidationSdsTrustOptions {
+  /**
+   * The name of the secret for Envoy to fetch from a specific endpoint through the Secrets Discovery Protocol.
+   */
+  readonly secretName: string;
+}
+
+/**
+ * Defines the TLS Validation Context Trust.
  */
 export abstract class TlsValidationTrust {
   /**
@@ -62,10 +94,17 @@ export abstract class TlsValidationTrust {
   }
 
   /**
-   * TLS validation context trust for ACM Private Certificate Authority (CA).
+   * TLS Validation Context Trust for ACM Private Certificate Authority (CA).
    */
   public static acm(props: TlsValidationAcmTrustOptions): TlsValidationTrust {
     return new TlsValidationAcmTrust(props);
+  }
+
+  /**
+   * TLS Validation Context Trust for Enovoy' service discovery service.
+   */
+  public static sds(props: TlsValidationSdsTrustOptions): TlsValidationTrust {
+    return new TlsValidationSdsTrust(props);
   }
 
   /**
@@ -125,7 +164,17 @@ class TlsValidationFileTrust extends TlsValidationTrust {
           certificateChain: this.certificateChain,
         },
       },
+      virtualNodeListenerTlsValidationTrust: {
+        file: {
+          certificateChain: this.certificateChain,
+        },
+      },
       virtualGatewayClientTlsValidationTrust: {
+        file: {
+          certificateChain: this.certificateChain,
+        },
+      },
+      virtualGatewayListenerTlsValidationTrust: {
         file: {
           certificateChain: this.certificateChain,
         },
@@ -133,3 +182,92 @@ class TlsValidationFileTrust extends TlsValidationTrust {
     };
   }
 }
+
+class TlsValidationSdsTrust extends TlsValidationTrust {
+  /**
+   * The name of the secret for Envoy to fetch from a specific endpoint through the Secrets Discovery Protocol.
+   */
+  readonly secretName: string;
+
+  constructor (props: TlsValidationSdsTrustOptions) {
+    super();
+    this.secretName = props.secretName;
+  }
+
+  public bind(_scope: Construct): TlsValidationTrustConfig {
+    return {
+      virtualNodeClientTlsValidationTrust: {
+        sds: {
+          secretName: this.secretName,
+        },
+      },
+      virtualNodeListenerTlsValidationTrust: {
+        sds: {
+          secretName: this.secretName,
+        },
+      },
+      virtualGatewayClientTlsValidationTrust: {
+        sds: {
+          secretName: this.secretName,
+        },
+      },
+      virtualGatewayListenerTlsValidationTrust: {
+        sds: {
+          secretName: this.secretName,
+        },
+      },
+    };
+  }
+}
+
+/**
+ * All Properties for Subject Alternative Names Matcher for both Client Policy and Listener.
+ */
+export interface SubjectiveAlternativeNamesMatcherConfig {
+
+  /**
+   * VirtualNode CFN configuration for subject alternative names secured by the certificate.
+   */
+  readonly virtualNodeSans: CfnVirtualGateway.SubjectAlternativeNameMatchersProperty;
+
+  /**
+   * VirtualGateway CFN configuration for subject alternative names secured by the certificate.
+   */
+  readonly virtualGatewaySans: CfnVirtualGateway.SubjectAlternativeNameMatchersProperty;
+}
+
+/**
+ * Used to generate Subject Alternative Names Matchers
+ */
+export abstract class SubjectiveAlternativeNamesMatch {
+  /**
+   * The values of the SAN must match the specified values exactly.
+   *
+   * @param subjectAlternativeNames The exact values to test against.
+   */
+  public static valuesAre(subjectAlternativeNames: string[]): SubjectiveAlternativeNamesMatch {
+    return new SubjectAlternativeNamesImpl({ exact: subjectAlternativeNames });
+  }
+
+  /**
+   * Returns Subject Alternative Names Matcher based on method type.
+   */
+  public abstract bind(scope: Construct): SubjectiveAlternativeNamesMatcherConfig;
+}
+
+class SubjectAlternativeNamesImpl extends SubjectiveAlternativeNamesMatch {
+  constructor(
+    private readonly matchProperty: CfnVirtualNode.SubjectAlternativeNameMatchersProperty,
+  ) {
+    super();
+  }
+
+  public bind(_scope: Construct): SubjectiveAlternativeNamesMatcherConfig {
+    return {
+      virtualGatewaySans: this.matchProperty,
+      virtualNodeSans: this.matchProperty,
+    };
+  }
+}
+
+
