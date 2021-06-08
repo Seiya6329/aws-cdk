@@ -430,6 +430,13 @@ export = {
                       SecretName: 'secret_certificate',
                     },
                   },
+                  Validation: {
+                    SubjectAlternativeNames: {
+                      Match: {
+                        Exact: ['mesh-endpoint.apps.local'],
+                      },
+                    },
+                  },
                 },
               },
             ],

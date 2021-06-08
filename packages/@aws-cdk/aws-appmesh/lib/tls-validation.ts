@@ -101,7 +101,7 @@ export abstract class TlsValidationTrust {
   }
 
   /**
-   * TLS Validation Context Trust for Enovoy' service discovery service.
+   * TLS Validation Context Trust for Envoy' service discovery service.
    */
   public static sds(props: TlsValidationSdsTrustOptions): TlsValidationTrust {
     return new TlsValidationSdsTrust(props);
