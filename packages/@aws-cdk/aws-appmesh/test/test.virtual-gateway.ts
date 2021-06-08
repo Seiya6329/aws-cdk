@@ -409,7 +409,9 @@ export = {
                 secretName: 'secret_certificate',
               }),
               validation: {
-                subjectAlternativeNames: appmesh.SubjectiveAlternativeNames.exactMatch(['mesh-endpoint.apps.local']),
+                subjectAlternativeNames: {
+                  exactMatch: ['mesh-endpoint.apps.local'],
+                },
                 trust: appmesh.TlsValidationTrust.sds({
                   secretName: 'secret_validation',
                 }),
@@ -598,7 +600,9 @@ export = {
         backendDefaults: {
           tlsClientPolicy: {
             validation: {
-              subjectAlternativeNames: appmesh.SubjectiveAlternativeNames.exactMatch(['mesh-endpoint.apps.local']),
+              subjectAlternativeNames: {
+                exactMatch: ['mesh-endpoint.apps.local'],
+              },
               trust: appmesh.TlsValidationTrust.file({
                 certificateChain: 'path-to-certificate',
               }),

@@ -166,7 +166,9 @@ function renderTls(scope: Construct, tls: TlsListener | undefined): CfnVirtualGa
         ? {
           subjectAlternativeNames: tls.validation?.subjectAlternativeNames
             ? {
-              match: tls.validation.subjectAlternativeNames.bind(scope).subjectAlternativeNamesMatch,
+              match: {
+                exact: tls.validation.subjectAlternativeNames.exactMatch,
+              },
             }
             : undefined,
           trust: trustProperty,

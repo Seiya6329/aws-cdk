@@ -210,7 +210,9 @@ class VirtualNodeListenerImpl extends VirtualNodeListener {
           ? {
             subjectAlternativeNames: tlsValidation.subjectAlternativeNames
               ? {
-                match: tlsValidation.subjectAlternativeNames.bind(scope).subjectAlternativeNamesMatch,
+                match: {
+                  exact: tlsValidation.subjectAlternativeNames.exactMatch,
+                },
               }
               : undefined,
             trust: tlsValidation.trust.bind(scope).tlsValidationTrust,

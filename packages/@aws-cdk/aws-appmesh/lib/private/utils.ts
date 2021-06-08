@@ -51,7 +51,9 @@ export function renderTlsClientPolicy(scope: Construct, tlsClientPolicy: TlsClie
       validation: {
         subjectAlternativeNames: sans
           ? {
-            match: sans.bind(scope).subjectAlternativeNamesMatch,
+            match: {
+              exact: sans.exactMatch,
+            },
           }
           : undefined,
         trust: tlsClientPolicy.validation.trust.bind(scope).tlsValidationTrust,

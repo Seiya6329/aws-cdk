@@ -1,5 +1,5 @@
 import * as acmpca from '@aws-cdk/aws-acmpca';
-import { CfnVirtualGateway, CfnVirtualNode } from './appmesh.generated';
+import { CfnVirtualNode } from './appmesh.generated';
 
 // keep this import separate from other imports to reduce chance for merge conflicts with v2-main
 // eslint-disable-next-line no-duplicate-imports, import/order
@@ -166,47 +166,11 @@ class TlsValidationSdsTrust extends TlsValidationTrust {
 }
 
 /**
- * All Properties for Subject Alternative Names Matcher for both Client Policy and Listener.
+ * Represents the properties needed to define subject alternative names
  */
-export interface SubjectiveAlternativeNamesMatcherConfig {
-
-  /**
-   * VirtualNode CFN configuration for subject alternative names secured by the certificate.
-   */
-  readonly subjectAlternativeNamesMatch: CfnVirtualGateway.SubjectAlternativeNameMatchersProperty;
-}
-
-/**
- * Used to generate Subject Alternative Names Matchers
- */
-export abstract class SubjectiveAlternativeNames {
+export interface SubjectiveAlternativeNames {
   /**
    * The values of the SAN must match the specified values exactly.
-   *
-   * @param subjectAlternativeNames The exact values to test against.
    */
-  public static exactMatch(subjectAlternativeNames: string[]): SubjectiveAlternativeNames {
-    return new SubjectAlternativeNamesImpl({ exact: subjectAlternativeNames });
-  }
-
-  /**
-   * Returns Subject Alternative Names Matcher based on method type.
-   */
-  public abstract bind(scope: Construct): SubjectiveAlternativeNamesMatcherConfig;
+  readonly exactMatch: string[];
 }
-
-class SubjectAlternativeNamesImpl extends SubjectiveAlternativeNames {
-  constructor(
-    private readonly matchProperty: CfnVirtualNode.SubjectAlternativeNameMatchersProperty,
-  ) {
-    super();
-  }
-
-  public bind(_scope: Construct): SubjectiveAlternativeNamesMatcherConfig {
-    return {
-      subjectAlternativeNamesMatch: this.matchProperty,
-    };
-  }
-}
-
-
