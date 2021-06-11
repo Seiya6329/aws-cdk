@@ -289,7 +289,6 @@ A certificate from AWS Certificate Manager is **not** supported for mutual TLS.
 ```typescript
 import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
 
-// Validate a file client certificates to enable mutual TLS authentication when a client provides a certificate.
 const cert = new certificatemanager.Certificate(this, 'cert', {...});
 
 const node1 = new appmesh.VirtualNode(stack, 'node1', {
@@ -302,6 +301,7 @@ const node1 = new appmesh.VirtualNode(stack, 'node1', {
       certificate: appmesh.TlsCertificate.acm({
         certificate: cert,
       }),
+      // Validate a file client certificates to enable mutual TLS authentication when a client provides a certificate.
       validation: {
         trust: appmesh.TlsValidationTrust.file({
           certificateChain: 'path-to-certificate',
@@ -311,14 +311,14 @@ const node1 = new appmesh.VirtualNode(stack, 'node1', {
   })],
 });
 
-// Provide a SDS client certificate when a server requests it and enable mutual TLS authentication.
 const certificateAuthorityArn = 'arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012';
 
 const node2 = new appmesh.VirtualNode(stack, 'node2', {
   mesh,
-  serviceDiscovery: appmesh.ServiceDiscovery.dns('node'),
+  serviceDiscovery: appmesh.ServiceDiscovery.dns('node2'),
   backendDefaults: {
     tlsClientPolicy: {
+      // Provide a SDS client certificate when a server requests it and enable mutual TLS authentication.
       certificate: appmesh.TlsCertificate.sds( {
         secretName: 'secret_certificate',
       }),
