@@ -574,6 +574,47 @@ export = {
 
       test.done();
     },
+
+    'Mesh Owner is the AWS account ID of the account in which the stack is being created'(test: Test) {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const mesh = new appmesh.Mesh(stack, 'mesh', {
+        meshName: 'test-mesh',
+      });
+      const router = new appmesh.VirtualRouter(stack, 'router', {
+        mesh,
+      });
+      const virtualNode = mesh.addVirtualNode('test-node', {
+        serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
+        listeners: [appmesh.VirtualNodeListener.http()],
+      });
+
+      new appmesh.Route(stack, 'test-route', {
+        mesh: mesh,
+        routeSpec: appmesh.RouteSpec.grpc({
+          weightedTargets: [{ virtualNode }],
+          match: { serviceName: 'example' },
+          retryPolicy: {
+            grpcRetryEvents: [],
+            httpRetryEvents: [],
+            tcpRetryEvents: [appmesh.TcpRetryEvent.CONNECTION_ERROR],
+            retryAttempts: 5,
+            retryTimeout: cdk.Duration.seconds(10),
+          },
+        }),
+        virtualRouter: router,
+
+      });
+
+      // THEN
+      expect(stack).to(haveResourceLike('AWS::AppMesh::Route', {
+        MeshOwner: {
+          Ref: 'AWS::AccountId',
+        },
+      }));
+
+      test.done();
+    },
   },
 
   'should match routes based on headers'(test: Test) {

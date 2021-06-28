@@ -133,6 +133,39 @@ export = {
       /Prefix Path must start with \'\/\', got: wrong/);
       test.done();
     },
+
+    'Mesh Owner is the AWS account ID of the account in which the stack is being created'(test:Test) {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const mesh = new appmesh.Mesh(stack, 'mesh', {
+        meshName: 'test-mesh',
+      });
+      const virtualGateway = new appmesh.VirtualGateway(stack, 'gateway-1', {
+        listeners: [appmesh.VirtualGatewayListener.http()],
+        mesh: mesh,
+      });
+      const virtualService = new appmesh.VirtualService(stack, 'vs-1', {
+        virtualServiceProvider: appmesh.VirtualServiceProvider.none(mesh),
+        virtualServiceName: 'target.local',
+      });
+
+      // WHEN
+      new appmesh.GatewayRoute(stack, 'test-node', {
+        routeSpec: appmesh.GatewayRouteSpec.http({
+          routeTarget: virtualService,
+        }),
+        virtualGateway: virtualGateway,
+      });
+
+      // THEN
+      expect(stack).to(haveResourceLike('AWS::AppMesh::GatewayRoute', {
+        MeshOwner: {
+          Ref: 'AWS::AccountId',
+        },
+      }));
+
+      test.done();
+    },
   },
 
   'Can import Gateway Routes using an ARN'(test: Test) {

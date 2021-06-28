@@ -1,4 +1,4 @@
-import { expect, haveResource } from '@aws-cdk/assert-internal';
+import {expect, haveResource, haveResourceLike} from '@aws-cdk/assert-internal';
 import * as cdk from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 
@@ -120,6 +120,36 @@ export = {
 
         test.done();
       },
+    },
+  },
+
+  'When creating a VirtualService': {
+    'Mesh Owner is the AWS account ID of the account in which the stack is being created'(test:Test) {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const mesh = new appmesh.Mesh(stack, 'mesh', {
+        meshName: 'test-mesh',
+      });
+      const node = mesh.addVirtualNode('test-node', {
+        serviceDiscovery: appmesh.ServiceDiscovery.dns('test.domain.local'),
+        listeners: [appmesh.VirtualNodeListener.http({
+          port: 8080,
+        })],
+      });
+
+      // WHEN
+      new appmesh.VirtualService(stack, 'test-node', {
+        virtualServiceProvider: appmesh.VirtualServiceProvider.virtualNode(node),
+      });
+
+      // THEN
+      expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualService', {
+        MeshOwner: {
+          Ref: 'AWS::AccountId',
+        },
+      }));
+
+      test.done();
     },
   },
 };

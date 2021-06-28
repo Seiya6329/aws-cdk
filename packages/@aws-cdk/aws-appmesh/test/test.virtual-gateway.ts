@@ -434,6 +434,28 @@ export = {
 
       test.done();
     },
+
+    'Mesh Owner is the AWS account ID of the account in which the stack is being created'(test:Test) {
+      // GIVEN
+      const stack = new cdk.Stack();
+      const mesh = new appmesh.Mesh(stack, 'mesh', {
+        meshName: 'test-mesh',
+      });
+
+      // WHEN
+      new appmesh.VirtualGateway(stack, 'test-node', {
+        mesh: mesh,
+      });
+
+      // THEN
+      expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualGateway', {
+        MeshOwner: {
+          Ref: 'AWS::AccountId',
+        },
+      }));
+
+      test.done();
+    },
   },
 
   'When adding a gateway route to existing VirtualGateway ': {
