@@ -154,7 +154,7 @@ export class VirtualRouter extends VirtualRouterBase {
     const router = new CfnVirtualRouter(this, 'Resource', {
       virtualRouterName: this.physicalName,
       meshName: this.mesh.meshName,
-      meshOwner: this.mesh.env.account,
+      meshOwner: this.mesh.meshOwner,
       spec: {
         listeners: this.listeners,
       },

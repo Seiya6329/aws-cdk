@@ -86,26 +86,26 @@ export = {
       test.done();
     },
 
-    'Mesh Owner is the AWS account ID of the account in which the stack is being created'(test:Test) {
-      // GIVEN
-      const stack = new cdk.Stack();
-      const mesh = new appmesh.Mesh(stack, 'mesh', {
-        meshName: 'test-mesh',
-      });
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test:Test) {
+        // GIVEN
+        const stack = new cdk.Stack();
+        const accountId = '123456789012';
+        const sharedMesh = appmesh.Mesh
+          .fromMeshArn(stack, 'shared-mesh', `arn:aws:appmesh:us-west-2:${accountId}:mesh/shared-mesh`);
 
-      // WHEN
-      new appmesh.VirtualRouter(stack, 'test-node', {
-        mesh: mesh,
-      });
+        // WHEN
+        new appmesh.VirtualRouter(stack, 'test-node', {
+          mesh: sharedMesh,
+        });
 
-      // THEN
-      expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualRouter', {
-        MeshOwner: {
-          Ref: 'AWS::AccountId',
-        },
-      }));
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualRouter', {
+          MeshOwner: accountId,
+        }));
 
-      test.done();
+        test.done();
+      },
     },
   },
 

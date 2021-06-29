@@ -134,37 +134,37 @@ export = {
       test.done();
     },
 
-    'Mesh Owner is the AWS account ID of the account in which the stack is being created'(test:Test) {
-      // GIVEN
-      const stack = new cdk.Stack();
-      const mesh = new appmesh.Mesh(stack, 'mesh', {
-        meshName: 'test-mesh',
-      });
-      const virtualGateway = new appmesh.VirtualGateway(stack, 'gateway-1', {
-        listeners: [appmesh.VirtualGatewayListener.http()],
-        mesh: mesh,
-      });
-      const virtualService = new appmesh.VirtualService(stack, 'vs-1', {
-        virtualServiceProvider: appmesh.VirtualServiceProvider.none(mesh),
-        virtualServiceName: 'target.local',
-      });
+    'with shared service mesh': {
+      'Mesh Owner is the AWS account ID of the account that shared the mesh with your account'(test:Test) {
+        // GIVEN
+        const stack = new cdk.Stack();
+        const accountId = '123456789012';
+        const sharedMesh = appmesh.Mesh
+          .fromMeshArn(stack, 'shared-mesh', `arn:aws:appmesh:us-west-2:${accountId}:mesh/shared-mesh`);
+        const virtualGateway = new appmesh.VirtualGateway(stack, 'gateway-1', {
+          listeners: [appmesh.VirtualGatewayListener.http()],
+          mesh: sharedMesh,
+        });
+        const virtualService = new appmesh.VirtualService(stack, 'vs-1', {
+          virtualServiceProvider: appmesh.VirtualServiceProvider.none(sharedMesh),
+          virtualServiceName: 'target.local',
+        });
 
-      // WHEN
-      new appmesh.GatewayRoute(stack, 'test-node', {
-        routeSpec: appmesh.GatewayRouteSpec.http({
-          routeTarget: virtualService,
-        }),
-        virtualGateway: virtualGateway,
-      });
+        // WHEN
+        new appmesh.GatewayRoute(stack, 'test-node', {
+          routeSpec: appmesh.GatewayRouteSpec.http({
+            routeTarget: virtualService,
+          }),
+          virtualGateway: virtualGateway,
+        });
 
-      // THEN
-      expect(stack).to(haveResourceLike('AWS::AppMesh::GatewayRoute', {
-        MeshOwner: {
-          Ref: 'AWS::AccountId',
-        },
-      }));
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::GatewayRoute', {
+          MeshOwner: accountId,
+        }));
 
-      test.done();
+        test.done();
+      },
     },
   },
 
