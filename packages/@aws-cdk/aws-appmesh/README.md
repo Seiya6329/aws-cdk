@@ -678,6 +678,7 @@ gateway.grantStreamAggregatedResources(envoyUser)
 ## Adding Resources to shared meshes
 
 A shared mesh allows resources created by different accounts to communicate with each other in the same mesh.
+For more information about mesh sharing, see [Working with shared meshes](https://docs.aws.amazon.com/app-mesh/latest/userguide/sharing.html).
 
 ```ts
 // This is the ARN for the mesh from different AWS IAM account ID.

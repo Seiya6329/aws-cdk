@@ -43,6 +43,8 @@ export interface IMesh extends cdk.IResource {
   /**
    * The AWS IAM account ID of the AppMesh mesh
    *
+   * @see https://docs.aws.amazon.com/app-mesh/latest/userguide/sharing.html
+   *
    * @attribute
    */
   readonly meshOwner: string;
