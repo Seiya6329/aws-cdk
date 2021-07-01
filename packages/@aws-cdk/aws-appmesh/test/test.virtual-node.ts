@@ -506,6 +506,7 @@ export = {
             },
           },
           )],
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
         });
 
         // THEN
@@ -551,6 +552,7 @@ export = {
               certificate: appmesh.TlsCertificate.file('path/to/certChain', 'path/to/privateKey'),
             },
           })],
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
         });
 
         // THEN
@@ -594,6 +596,7 @@ export = {
               certificate: appmesh.TlsCertificate.sds('secret_certificate'),
             },
           })],
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
         });
 
         // THEN
@@ -637,6 +640,7 @@ export = {
               certificate: appmesh.TlsCertificate.file('path/to/certChain', 'path/to/privateKey'),
             },
           })],
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
         });
 
         // THEN
@@ -682,6 +686,7 @@ export = {
             },
           }),
         ],
+        serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
       });
 
       // THEN
@@ -722,6 +727,7 @@ export = {
             },
           }),
         ],
+        serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
       });
 
       // THEN
@@ -761,6 +767,7 @@ export = {
             },
           }),
         ],
+        serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
       });
 
       // THEN
@@ -800,6 +807,7 @@ export = {
             },
           }),
         ],
+        serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
       });
 
       // THEN
@@ -871,6 +879,7 @@ export = {
           certificate: appmesh.TlsCertificate.file('path/to/certChain', 'path/to/privateKey'),
         },
       })],
+      serviceDiscovery: appmesh.ServiceDiscovery.dns('test'),
     });
 
     // WHEN
@@ -893,5 +902,59 @@ export = {
     }));
 
     test.done();
+  },
+
+  'When creating a VirtualNode': {
+    'with DNS service discovery': {
+      'should allow set response type'(test: Test) {
+        // GIVEN
+        const stack = new cdk.Stack();
+
+        const mesh = new appmesh.Mesh(stack, 'mesh', {
+          meshName: 'test-mesh',
+        });
+
+        // WHEN
+        new appmesh.VirtualNode(stack, 'test-node', {
+          mesh,
+          serviceDiscovery: appmesh.ServiceDiscovery.dns('test', appmesh.ResponseType.LOADBALANCER),
+        });
+
+        // THEN
+        expect(stack).to(haveResourceLike('AWS::AppMesh::VirtualNode', {
+          Spec: {
+            ServiceDiscovery: {
+              DNS: {
+                Hostname: 'test',
+                ResponseType: 'LOADBALANCER',
+              },
+            },
+          },
+        }));
+        test.done();
+      },
+    },
+
+    'with listener and without service discovery': {
+      'should throw an error'(test: Test) {
+        // GIVEN
+        const stack = new cdk.Stack();
+
+        const mesh = new appmesh.Mesh(stack, 'mesh', {
+          meshName: 'test-mesh',
+        });
+
+        // WHEN + THEN
+
+        test.throws(() => {
+          new appmesh.VirtualNode(stack, 'test-node', {
+            mesh,
+            listeners: [appmesh.VirtualNodeListener.http()],
+          });
+        }, /If you specify a listener, then you must specify service discovery information/);
+
+        test.done();
+      },
+    },
   },
 };
