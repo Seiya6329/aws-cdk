@@ -121,7 +121,7 @@ export = {
             },
           ],
           match: {
-            pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/'),
+            pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/'),
           },
         }),
       });
@@ -208,7 +208,7 @@ export = {
             },
           ],
           match: {
-            pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/'),
+            pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/'),
           },
         }),
       });
@@ -222,7 +222,7 @@ export = {
             },
           ],
           match: {
-            pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/path2'),
+            pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/path2'),
           },
         }),
       });
@@ -236,7 +236,7 @@ export = {
             },
           ],
           match: {
-            pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/path3'),
+            pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/path3'),
           },
         }),
       });

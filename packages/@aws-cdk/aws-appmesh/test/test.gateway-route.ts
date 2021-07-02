@@ -125,7 +125,7 @@ export = {
       test.throws(() => appmesh.GatewayRouteSpec.http({
         routeTarget: virtualService,
         match: {
-          pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('wrong'),
+          pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('wrong'),
         },
       }).bind(stack),
       /Prefix Path must start with \'\/\', got: wrong/);
@@ -182,7 +182,7 @@ export = {
               Action: {
                 Rewrite: {
                   Hostname: {
-                    DefaultTargetHostname: 'enabled',
+                    DefaultTargetHostname: 'ENABLED',
                   },
                 },
               },
@@ -197,7 +197,7 @@ export = {
               Action: {
                 Rewrite: {
                   Hostname: {
-                    DefaultTargetHostname: 'enabled',
+                    DefaultTargetHostname: 'ENABLED',
                   },
                 },
               },
@@ -291,7 +291,7 @@ export = {
                 pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixRewrite.path('/rewrittenPath'),
               },
               match: {
-                pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/'),
+                pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/'),
               },
             }),
             gatewayRouteName: 'gateway-http2-route',
@@ -363,7 +363,7 @@ export = {
               Action: {
                 Rewrite: {
                   Prefix: {
-                    DefaultPrefix: 'enabled',
+                    DefaultPrefix: 'ENABLED',
                   },
                 },
               },
@@ -378,7 +378,7 @@ export = {
               Action: {
                 Rewrite: {
                   Prefix: {
-                    DefaultPrefix: 'disabled',
+                    DefaultPrefix: 'DISABLED',
                   },
                 },
               },
@@ -432,7 +432,7 @@ export = {
                 pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixRewrite.customPrefix('/rewrittenUrl'),
               },
               match: {
-                pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingExactly('/'),
+                pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingExactly('/'),
                 ),
               },
             }),
@@ -655,7 +655,7 @@ export = {
           routeSpec: appmesh.GatewayRouteSpec.http({
             routeTarget: virtualService,
             match: {
-              header: [
+              headers: [
                 appmesh.HttpHeaderMatch.valueIs('Content-Type', 'application/json'),
                 appmesh.HttpHeaderMatch.valueIsNot('Content-Type', 'text/html'),
                 appmesh.HttpHeaderMatch.valueStartsWith('Content-Type', 'application/'),
@@ -821,7 +821,7 @@ export = {
           routeSpec: appmesh.GatewayRouteSpec.http({
             routeTarget: virtualService,
             match: {
-              pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingExactly('exact')),
+              pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingExactly('exact')),
             },
           }),
           gatewayRouteName: 'gateway-http-route',
@@ -832,7 +832,7 @@ export = {
           routeSpec: appmesh.GatewayRouteSpec.http2({
             routeTarget: virtualService,
             match: {
-              pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingRegex('regex')),
+              pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingRegex('regex')),
             },
           }),
           gatewayRouteName: 'gateway-http2-route',

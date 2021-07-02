@@ -235,7 +235,7 @@ export = {
             },
           ],
           match: {
-            pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/node'),
+            pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/node'),
           },
           timeout: {
             idle: cdk.Duration.seconds(10),
@@ -595,7 +595,7 @@ export = {
       routeSpec: appmesh.RouteSpec.http2({
         weightedTargets: [{ virtualNode }],
         match: {
-          pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/'),
+          pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/'),
           headers: [
             appmesh.HttpHeaderMatch.valueIs('Content-Type', 'application/json'),
             appmesh.HttpHeaderMatch.valueIsNot('Content-Type', 'text/html'),
@@ -709,7 +709,7 @@ export = {
       routeSpec: appmesh.RouteSpec.http2({
         weightedTargets: [{ virtualNode }],
         match: {
-          pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/'),
+          pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/'),
           method: appmesh.HttpRouteMatchMethod.GET,
         },
       }),
@@ -751,7 +751,7 @@ export = {
       routeSpec: appmesh.RouteSpec.http2({
         weightedTargets: [{ virtualNode }],
         match: {
-          pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.prefix('/'),
+          pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.prefix('/'),
           protocol: appmesh.HttpRouteProtocol.HTTP,
         },
       }),
@@ -907,7 +907,7 @@ export = {
       routeSpec: appmesh.RouteSpec.http({
         weightedTargets: [{ virtualNode }],
         match: {
-          pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingExactly('exact')),
+          pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingExactly('exact')),
         },
       }),
     });
@@ -918,7 +918,7 @@ export = {
       routeSpec: appmesh.RouteSpec.http2({
         weightedTargets: [{ virtualNode }],
         match: {
-          pathOrPrefix: appmesh.HttpGatewayRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingRegex('regex')),
+          pathOrPrefix: appmesh.HttpRoutePathOrPrefixMatch.path(appmesh.HttpPathMatch.matchingRegex('regex')),
         },
       }),
     });
@@ -1115,7 +1115,6 @@ export = {
 
     test.done();
   },
-
 
   'Can import Routes using an ARN'(test: Test) {
     const app = new cdk.App();
